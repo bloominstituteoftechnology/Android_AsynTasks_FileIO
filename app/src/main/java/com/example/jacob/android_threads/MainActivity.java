@@ -3,8 +3,8 @@ package com.example.jacob.android_threads;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,7 +14,10 @@ import android.widget.TextView;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 
@@ -36,11 +39,15 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         button = findViewById(R.id.button_update);
         spinner = findViewById(R.id.spinner);
+        textView = findViewById(R.id.text_main_content);
+        editText = findViewById(R.id.edit_shift);
 
         ArrayList<String> itemArray = new ArrayList<>();
+        itemArray.add("");
+
         try {
             String[] items = getAssets().list("");
-            for (String item:items) {
+            for (String item : items) {
                 if (item.contains("txt")) {
                     itemArray.add(item);
                 }
@@ -48,22 +55,57 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, itemArray);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
+        spinner.setSelection(0, false);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BufferedReader bufferedReader = null;
+                StringBuilder builder = new StringBuilder();
+                InputStream stream = null;
+                try {
+                    String selectedItem = (String) parent.getItemAtPosition(position);
+                    stream = context.getAssets().open(selectedItem);
+                    InputStreamReader inputStreamReader = new InputStreamReader(stream);
+                    bufferedReader = new BufferedReader(inputStreamReader);
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        line += "\n";
+                        builder.append(line);
+                    }
+                    String textToSend = builder.toString();
+                    String shiftAmount = editText.getText().toString();
+                    new offloadTask().execute(textToSend, shiftAmount);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (stream != null) {
+                        try {
+                            stream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textView = findViewById(R.id.text_main_content);
-                editText = findViewById(R.id.edit_shift);
                 String unShiftedString = getResources().getString(R.string.contents_shifted);
                 String shiftAmount = editText.getText().toString();
-
                 task = new offloadTask();
-                task.execute(unShiftedString, shiftAmount);
+//                task.execute(unShiftedString, shiftAmount);
             }
         });
 
@@ -149,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     //Add some pi digits calculations to slow it down a little
 //                    Log.i("piCalc=", pi_digits(100));
 
-                    if (i % Math.round(loops/ progressResolution) == 0) {
+                    if (i % Math.round(loops / progressResolution) == 0) {
                         publishProgress(i);
                         if (isCancelled()) {
                             outputStringBuilder.append("...[Processing canceled.  Press Update to refresh.]");
