@@ -5,12 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.os.AsyncTask;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     Button button;
     offloadTask task;
+    Spinner spinner;
 
 
     @Override
@@ -29,6 +35,24 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         progressBar = findViewById(R.id.progress_bar);
         button = findViewById(R.id.button_update);
+        spinner = findViewById(R.id.spinner);
+
+        ArrayList<String> itemArray = new ArrayList<>();
+        try {
+            String[] items = getAssets().list("");
+            for (String item:items) {
+                if (item.contains("txt")) {
+                    itemArray.add(item);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, itemArray);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(arrayAdapter);
+
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //Add some pi digits calculations to slow it down a little
-                    Log.i("piCalc=", pi_digits(100));
+//                    Log.i("piCalc=", pi_digits(100));
 
                     if (i % Math.round(loops/ progressResolution) == 0) {
                         publishProgress(i);
