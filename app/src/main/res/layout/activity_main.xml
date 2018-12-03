@@ -25,19 +25,27 @@
         android:text="0"
         app:layout_constraintStart_toEndOf="@+id/text_label" />
 
-    <Button
+    <ImageButton
         android:id="@+id/button_update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Update"
+        android:src="@android:drawable/ic_media_play"
         app:layout_constraintEnd_toStartOf="@+id/button_cancel"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button_cancel"
+    <ImageButton
+    android:id="@+id/button_cancel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@android:drawable/btn_dialog"
+    app:layout_constraintEnd_toStartOf="@+id/button_save"
+    app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/button_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancel"
+        android:src="@android:drawable/ic_menu_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
