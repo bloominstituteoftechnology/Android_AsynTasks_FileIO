@@ -14,8 +14,13 @@ import android.widget.TextView;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,32 +36,22 @@ public class MainActivity extends AppCompatActivity {
     ImageButton buttonUpdate;
     offloadTask task;
     Spinner spinner;
-
+    final ArrayList<String> itemArray = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Stetho.initializeWithDefaults(this);
         context = this;
         progressBar = findViewById(R.id.progress_bar);
         buttonUpdate = findViewById(R.id.button_update);
         spinner = findViewById(R.id.spinner);
         textView = findViewById(R.id.text_main_content);
         editText = findViewById(R.id.edit_shift);
+        updateSpinnerList();
 
-        final ArrayList<String> itemArray = new ArrayList<>();
-        itemArray.add("");
-        try {
-            String[] items = getAssets().list("");
-            for (String item : items) {
-                if (item.contains("txt")) {
-                    itemArray.add(item.replace(".txt", ""));
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, itemArray);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
@@ -67,28 +62,58 @@ public class MainActivity extends AppCompatActivity {
                 BufferedReader bufferedReader = null;
                 StringBuilder builder = new StringBuilder();
                 InputStream stream = null;
-                try {
-                    String selectedItem = (String) parent.getItemAtPosition(position) + ".txt";
-                    stream = context.getAssets().open(selectedItem);
-                    InputStreamReader inputStreamReader = new InputStreamReader(stream);
-                    bufferedReader = new BufferedReader(inputStreamReader);
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        line += "\n";
-                        builder.append(line);
-                    }
-                    String textToSend = builder.toString();
-                    String shiftAmount = editText.getText().toString();
-                    new offloadTask().execute(textToSend, shiftAmount);
+                FileInputStream fStream = null;
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (stream != null) {
-                        try {
-                            stream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                String selectedItem = (String) parent.getItemAtPosition(position);
+
+                if (selectedItem.contains("_Shifted_")) {
+                    editText.setText("0");
+                    try {
+                        fStream = new FileInputStream(new File(context.getCacheDir(), selectedItem));
+                        int i = 0;
+                        while ((i = fStream.read()) != -1) {
+                            builder.append((char) i);
+                        }
+                        textView.setText(builder.toString());
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (fStream != null) {
+                            try {
+                                fStream.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } else {
+                    try {
+                        selectedItem += ".txt";
+                        stream = context.getAssets().open(selectedItem);
+                        InputStreamReader inputStreamReader = new InputStreamReader(stream);
+                        bufferedReader = new BufferedReader(inputStreamReader);
+
+                        String line;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            line += "\n";
+                            builder.append(line);
+                        }
+                        String textToSend = builder.toString();
+                        String shiftAmount = editText.getText().toString();
+                        new offloadTask().execute(textToSend, shiftAmount);
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (stream != null) {
+                            try {
+                                stream.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -104,22 +129,22 @@ public class MainActivity extends AppCompatActivity {
         buttonUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-/*                String unShiftedString = getResources().getString(R.string.contents_shifted);
+                String unShiftedString = getResources().getString(R.string.contents_shifted);
                 String shiftAmount = editText.getText().toString();
                 task = new offloadTask();
-                task.execute(unShiftedString, shiftAmount);*/
+                task.execute(unShiftedString, shiftAmount);
             }
         });
 
         findViewById(R.id.button_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fileName = spinner.getSelectedItem().toString() + " - Shifted " + editText.getText() + ".txt";
+                String fileName = spinner.getSelectedItem().toString() + "_Shifted_" + editText.getText() + ".txt";
                 FileWriter writer = null;
                 try {
                     File outputFile = File.createTempFile(fileName, null, context.getCacheDir());
                     writer = new FileWriter(outputFile);
-                    writer.write(editText.getText().toString());
+                    writer.write(textView.getText().toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -131,15 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-
-                //add items to spinner
-                String[] items;
-                    items = context.getCacheDir().list();
-                    for (String item : items) {
-                        if (item.contains("txt")) {
-                            itemArray.add(item.replace(".txt", ""));
-                        }
-                    }
+                updateSpinnerList();
             }
         });
 
@@ -241,6 +258,32 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    void updateSpinnerList() {
+        try {
+            itemArray.clear();
+            itemArray.add("");
+            String[] items = getAssets().list("");
+            for (String item : items) {
+                if (item.contains("txt")) {
+                    itemArray.add(item.replace(".txt", ""));
+                }
+            }
+            //add items to spinner
+            items = context.getCacheDir().list();
+            for (String item : items) {
+                if (item.contains("txt")) {
+                    itemArray.add(item);
+//                    itemArray.add(item.replace(".txt", ""));
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     public static String pi_digits(int digits) {
         int SCALE = 10000;
