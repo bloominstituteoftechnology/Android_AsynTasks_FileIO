@@ -68,6 +68,14 @@ public class MainActivity extends AppCompatActivity {
                 if (selectedItem.contains("_Shifted_")) {
                     editText.setText("0");
                     try {
+                        String[] items = context.getCacheDir().list();
+                        String searchText = selectedItem + ".txt";
+                        for (String item:items) {
+                            if (item.contains(selectedItem)) {
+                                selectedItem = item;
+                                break;
+                            }
+                        }
                         fStream = new FileInputStream(new File(context.getCacheDir(), selectedItem));
                         int i = 0;
                         while ((i = fStream.read()) != -1) {
@@ -272,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
             items = context.getCacheDir().list();
             for (String item : items) {
                 if (item.contains("txt")) {
+                    item = item.substring(0,item.indexOf(".txt"));
                     itemArray.add(item);
 //                    itemArray.add(item.replace(".txt", ""));
                 }
