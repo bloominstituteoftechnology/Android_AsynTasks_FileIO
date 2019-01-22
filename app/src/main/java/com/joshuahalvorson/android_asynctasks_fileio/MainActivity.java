@@ -3,6 +3,7 @@ package com.joshuahalvorson.android_asynctasks_fileio;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
+import android.os.Trace;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private AsyncTask cipherTextTask;
     private Spinner spinner;
     Context context;
-    String[] items;
 
 
         @Override
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         protected String doInBackground( String... strings) {
+            Trace.beginSection("doInBackground");
             int shiftAmount = Integer.parseInt(shiftTextValue.getText().toString());
             if (strings[0] != null) {
                 StringBuilder newString = new StringBuilder();
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             newString.append(strings[0].charAt(i));
                         }
                     }
-                    if(lettersShifted % 30 == 0){
+                    /*if(lettersShifted % 30 == 0){
                         publishProgress(lettersShifted);
                         if(isCancelled()){
                             progressBar.setVisibility(View.GONE);
@@ -206,18 +207,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             return newString.toString();
                         }
                     }
-                    lettersShifted++;
+                    lettersShifted++;*/
                 }
                 return newString.toString();
             }
+            Trace.endSection();
             return "";
         }
 
-        @Override
+        /*@Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
             progressBar.setProgress(values[0]);
-        }
+        }*/
 
 
 
