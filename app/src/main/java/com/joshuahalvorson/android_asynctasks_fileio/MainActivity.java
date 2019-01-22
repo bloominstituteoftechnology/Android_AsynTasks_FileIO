@@ -23,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -179,27 +181,48 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         protected StringBuilder doInBackground( String... strings) {
             Trace.beginSection("doInBackground");
             int shiftAmount = Integer.parseInt(shiftTextValue.getText().toString());
-            if (strings[0] != null) {
+            String inputString = strings[0];
+            if (inputString != null) {
                 final StringBuilder newString = new StringBuilder();
-                for (int i = 0; i < strings[0].length(); i++) {
-                    char currentChar = strings[0].charAt(i);
-                    if (shiftAmount >= 0) {
-                        if (Character.isLowerCase(currentChar)) {
-                            newString.append((char) ('a' + (26 + currentChar - 'a' - shiftAmount % 26) % 26));
-                        } else if (Character.isUpperCase(currentChar)) {
-                            newString.append((char) ('A' + (26 + currentChar - 'A' - shiftAmount % 26) % 26));
-                        } else {
-                            newString.append(currentChar);
-                        }
-                    } else {
-                        if (Character.isLowerCase(currentChar)) {
-                            newString.append((char) ('a' + ((currentChar - 'a' - shiftAmount) % 26)));
-                        } else if (Character.isUpperCase(currentChar)) {
-                            newString.append((char) ('A' + ((currentChar - 'A' - shiftAmount) % 26)));
-                        } else {
-                            newString.append(currentChar);
+                Reader stringReader = new StringReader(inputString);
+                BufferedReader reader = new BufferedReader(stringReader);
+                String line;
+                try{
+                    while ((line = reader.readLine()) != null) {
+
+                        for(int i = 0; i < line.length(); i++){
+                            char currentChar = strings[0].charAt(i);
+                            if (shiftAmount >= 0) {
+                                if (Character.isLowerCase(currentChar)) {
+                                    newString.append((char) ('a' + (26 + currentChar - 'a' - shiftAmount % 26) % 26));
+                                } else if (Character.isUpperCase(currentChar)) {
+                                    newString.append((char) ('A' + (26 + currentChar - 'A' - shiftAmount % 26) % 26));
+                                } else {
+                                    newString.append(currentChar);
+                                }
+                            } else {
+                                if (Character.isLowerCase(currentChar)) {
+                                    newString.append((char) ('a' + ((currentChar - 'a' - shiftAmount) % 26)));
+                                } else if (Character.isUpperCase(currentChar)) {
+                                    newString.append((char) ('A' + ((currentChar - 'A' - shiftAmount) % 26)));
+                                } else {
+                                    newString.append(currentChar);
+                                }
+                            }
                         }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //for (int i = 0; i < strings[0].length(); i++) {
+
                     /*if(lettersShifted % 30 == 0){
                         publishProgress(lettersShifted);
                         if(isCancelled()){
@@ -209,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     }
                     lettersShifted++;*/
-                }
+                //}
                 return newString;
             }
             Trace.endSection();
