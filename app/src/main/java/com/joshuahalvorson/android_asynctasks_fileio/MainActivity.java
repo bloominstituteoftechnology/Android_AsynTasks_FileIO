@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    public class CipherTextTask extends AsyncTask<String, Integer, String>{
+    public class CipherTextTask extends AsyncTask<String, Integer, StringBuilder>{
         int lettersShifted = 0;
 
         @Override
@@ -176,27 +176,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         @Override
-        protected String doInBackground( String... strings) {
+        protected StringBuilder doInBackground( String... strings) {
             Trace.beginSection("doInBackground");
             int shiftAmount = Integer.parseInt(shiftTextValue.getText().toString());
             if (strings[0] != null) {
-                StringBuilder newString = new StringBuilder();
+                final StringBuilder newString = new StringBuilder();
                 for (int i = 0; i < strings[0].length(); i++) {
+                    char currentChar = strings[0].charAt(i);
                     if (shiftAmount >= 0) {
-                        if (Character.isLowerCase(strings[0].charAt(i))) {
-                            newString.append((char) ('a' + (26 + strings[0].charAt(i) - 'a' - shiftAmount % 26) % 26));
-                        } else if (Character.isUpperCase(strings[0].charAt(i))) {
-                            newString.append((char) ('A' + (26 + strings[0].charAt(i) - 'A' - shiftAmount % 26) % 26));
+                        if (Character.isLowerCase(currentChar)) {
+                            newString.append((char) ('a' + (26 + currentChar - 'a' - shiftAmount % 26) % 26));
+                        } else if (Character.isUpperCase(currentChar)) {
+                            newString.append((char) ('A' + (26 + currentChar - 'A' - shiftAmount % 26) % 26));
                         } else {
-                            newString.append(strings[0].charAt(i));
+                            newString.append(currentChar);
                         }
                     } else {
-                        if (Character.isLowerCase(strings[0].charAt(i))) {
-                            newString.append((char) ('a' + ((strings[0].charAt(i) - 'a' - shiftAmount) % 26)));
-                        } else if (Character.isUpperCase(strings[0].charAt(i))) {
-                            newString.append((char) ('A' + ((strings[0].charAt(i) - 'A' - shiftAmount) % 26)));
+                        if (Character.isLowerCase(currentChar)) {
+                            newString.append((char) ('a' + ((currentChar - 'a' - shiftAmount) % 26)));
+                        } else if (Character.isUpperCase(currentChar)) {
+                            newString.append((char) ('A' + ((currentChar - 'A' - shiftAmount) % 26)));
                         } else {
-                            newString.append(strings[0].charAt(i));
+                            newString.append(currentChar);
                         }
                     }
                     /*if(lettersShifted % 30 == 0){
@@ -209,10 +210,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                     lettersShifted++;*/
                 }
-                return newString.toString();
+                return newString;
             }
             Trace.endSection();
-            return "";
+            return null;
         }
 
         /*@Override
@@ -229,9 +230,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         @Override
-        protected void onPostExecute(String string) {
+        protected void onPostExecute(StringBuilder string) {
             //progressBar.setVisibility(View.GONE);
-            cipherTextView.setText(string);
+            cipherTextView.setText(string.toString());
         }
     }
 }
