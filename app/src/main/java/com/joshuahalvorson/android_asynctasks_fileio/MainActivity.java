@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
+            //progressBar.setVisibility(View.VISIBLE);
             //progressBar.setMax(cipherTextView.getText().toString().length());
         }
 
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         protected void onPostExecute(String string) {
-            progressBar.setVisibility(View.GONE);
+            //progressBar.setVisibility(View.GONE);
             cipherTextView.setText(string);
         }
     }
