@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         protected void onPreExecute() {
             super.onPreExecute();
             progressBar.setVisibility(View.VISIBLE);
-            progressBar.setMax(cipherTextView.getText().toString().length());
+            //progressBar.setMax(cipherTextView.getText().toString().length());
         }
 
 
