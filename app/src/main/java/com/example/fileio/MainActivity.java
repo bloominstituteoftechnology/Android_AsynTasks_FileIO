@@ -154,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		protected void onProgressUpdate(Object[] values) {
 			super.onProgressUpdate(values);
-//			progressBar.setMax(startingText.length());
-		//	progressBar.setProgress(progress);
+			progressBar.setMax(tv.length());
+			progressBar.setProgress(progress);
 		}
 		
 		@Override
