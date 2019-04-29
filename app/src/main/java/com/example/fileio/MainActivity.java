@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,7 +13,11 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 	char[] upperCase = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 	char[] lowerCase = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 	String[] txtFiles;
+	BufferedReader bufferedReader = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +92,46 @@ public class MainActivity extends AppCompatActivity {
 		final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item, txtList);
 		spinnerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 		spinner.setAdapter(spinnerArrayAdapter);
+		
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				StringBuilder stringBuilder = new StringBuilder();
+				
+				String asset = (String)spinner.getItemAtPosition(position);
+				InputStream inputStream = null;
+				
+				try {
+					inputStream = getAssets().open(asset);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+				bufferedReader = new BufferedReader(inputStreamReader);
+				
+				try {
+					String next = bufferedReader.readLine();
+					while(next != null){
+						stringBuilder.append(next);
+						next = bufferedReader.readLine();
+					}
+					
+					String output = stringBuilder.toString();
+					
+					tv.setText(output);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				
+			}
+			
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			
+			}
+		});
 		
 	}
 	
