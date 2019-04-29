@@ -44,9 +44,6 @@ public class MainActivity extends AppCompatActivity {
 		progressBar = findViewById(R.id.progressBar);
 		spinner = findViewById(R.id.spinner_select_file);
 		
-		startingText =  tv.getText().toString();
-		Log.i("test2", String.valueOf(startingText.length()));
-		
 		setSpinner();
 		
 		
@@ -157,14 +154,14 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		protected void onProgressUpdate(Object[] values) {
 			super.onProgressUpdate(values);
-			progressBar.setMax(startingText.length());
-			progressBar.setProgress(progress);
+//			progressBar.setMax(startingText.length());
+		//	progressBar.setProgress(progress);
 		}
 		
 		@Override
 		protected Object doInBackground(Object[] objects) {
-			String text = startingText;
-			char[] textCharArray = text.toCharArray();
+			String startingText = tv.getText().toString();
+			char[] textCharArray = startingText.toCharArray();
 			char[] textShifted = new char[textCharArray.length];
 			String output = "";
 			
