@@ -1,18 +1,22 @@
 package com.vivekvishwanath.android_asyntasks_fileio;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.vivekvishwanath.android_asyntasks_fileio.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,13 +25,15 @@ public class MainActivity extends AppCompatActivity {
     EditText userInput;
     ProgressBar progressBar;
     int shift;
+    Context context;
+    Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cipherTextView = findViewById(R.id.cipher_data_text);
+      /*    cipherTextView = findViewById(R.id.cipher_data_text);
         userInput = findViewById(R.id.shift_input);
         shiftButton = findViewById(R.id.shift_button);
         progressBar = findViewById(R.id.progress_bar);
@@ -39,8 +45,27 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setMax(cipher.length());
                 new DecryptCypherAsync().execute(cipher);
             }
-        });
+        }); */
+      context = this;
+      spinner = findViewById(R.id.spinner);
 
+      String[] assets = null;
+      ArrayList<String> textAssets = new ArrayList<>();
+        try {
+            assets = getAssets().list("");
+            for (int i = 0; i < assets.length; i++) {
+                if (assets[i].endsWith(".txt")) {
+                    textAssets.add(assets[i]); 
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item,
+                textAssets);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
     class DecryptCypherAsync extends AsyncTask<String, Integer, String> {
@@ -68,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             int shifts = 0;
-            String newString = "";
+            StringBuilder builder = new StringBuilder();
             char c;
             for (int i = 0; i < strings[0].length(); i++) {
                 c = strings[0].charAt(i);
@@ -79,12 +104,12 @@ public class MainActivity extends AppCompatActivity {
                         || (c < 'a' && c > 'a' + shift )) {
                     c += 26;
                 }
-                newString += c;
+                builder.append(c);
                 publishProgress(shifts);
                 shifts++;
             }
             // System.out.println(newString);
-            return newString;
+            return builder.toString();
         }
     }
 }
