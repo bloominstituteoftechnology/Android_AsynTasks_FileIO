@@ -1,13 +1,23 @@
 package com.example.android_asyntasks_fileio;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public  class MainActivity extends AppCompatActivity {
     public int MAXIMUM = 26;
@@ -16,12 +26,66 @@ public  class MainActivity extends AppCompatActivity {
     public EditText editText;
     public TextView textView;
     public ProgressBar progressBar;
+    Spinner spinner;
+    ArrayList<String> newArray;
+    String[] spinnerList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         progressBar = findViewById(R.id.progress_bar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         shiftButton = findViewById(R.id.shift_button);
+        spinner = findViewById(R.id.spinner);
+        final Context context = this;
+        newArray = new ArrayList<>();
+
+
+        try {
+            spinnerList = getAssets().list("");
+            for(int i = 0; i < spinnerList.length;i++){
+                if (spinnerList[i].contains(".txt")){
+                newArray.add(spinnerList[i]);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_item,newArray);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        spinner.setAdapter(adapter);
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BufferedReader reader = null;
+                StringBuilder builder = new StringBuilder();
+                try {
+                    String itemString = (String) parent.getItemAtPosition(position);
+                    InputStream stream = context.getAssets().open(itemString);
+                    InputStreamReader isReader = new InputStreamReader(stream);
+                    reader = new BufferedReader(isReader);
+                    String next = reader.readLine();
+                    while (next != null) {
+                        builder.append(next);
+                        next = reader.readLine();
+
+                    }
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+                @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+
 
         shiftButton.setOnClickListener(new View.OnClickListener() {
             @Override
