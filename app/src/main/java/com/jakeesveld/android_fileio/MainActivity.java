@@ -183,8 +183,9 @@ public class MainActivity extends AppCompatActivity {
             String shiftedCipher = "";
             StringBuilder builder = new StringBuilder(strings[0].length());
             for (int i = 0; i < strings[0].length(); i++) {
-                if (ALPHABET.indexOf(strings[0].charAt(i)) != -1) {
-                    int position = ALPHABET.indexOf(strings[0].charAt(i));
+                char selectedChar = strings[0].charAt(i);
+                if (ALPHABET.indexOf(selectedChar) != -1) {
+                    int position = ALPHABET.indexOf(selectedChar);
                     int shiftedPosition = (position + shiftTimes) % 26;
                         /*if(shiftedPosition > 0){
                             shiftedPosition = ALPHABET.length() + shiftedPosition;
@@ -193,16 +194,16 @@ public class MainActivity extends AppCompatActivity {
                     //shiftedCipher += shiftedChar;
                     builder.append(shiftedChar);
                     publishProgress(i);
-                } else if (UPPER_CASE_ALPHABET.indexOf(strings[0].charAt(i)) != -1) {
-                    int position = UPPER_CASE_ALPHABET.indexOf(strings[0].charAt(i));
+                } else if (UPPER_CASE_ALPHABET.indexOf(selectedChar) != -1) {
+                    int position = UPPER_CASE_ALPHABET.indexOf(selectedChar);
                     int shiftedPosition = (position + shiftTimes) % 26;
                     char shiftedChar = UPPER_CASE_ALPHABET.charAt(shiftedPosition);
                     //shiftedCipher += shiftedChar;
                     builder.append(shiftedChar);
                     publishProgress(i);
                 } else {
-                    //shiftedCipher += strings[0].charAt(i);
-                    builder.append(strings[0].charAt(i));
+                    //shiftedCipher += selectedChar;
+                    builder.append(selectedChar);
                     publishProgress(i);
                 }
 
