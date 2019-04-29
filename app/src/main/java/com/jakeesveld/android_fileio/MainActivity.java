@@ -1,13 +1,19 @@
 package com.jakeesveld.android_fileio;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     Button buttonSubmit;
     TextView textCipher;
     DecryptThread decryptThread;
+    Spinner spinner;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +33,26 @@ public class MainActivity extends AppCompatActivity {
         editInput = findViewById(R.id.edit_input);
         buttonSubmit = findViewById(R.id.button_shift);
         textCipher = findViewById(R.id.text_view_cypher);
+        spinner = findViewById(R.id.spinner);
+        context = this;
+
+        try {
+            String[] assetsStringArray = getAssets().list("");
+            ArrayList<String> assetsArray = new ArrayList<>();
+            if (assetsStringArray != null) {
+                for(String item: assetsStringArray){
+                    if(item.contains(".txt")){
+                        assetsArray.add(item);
+                    }
+                }
+            }
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context,
+                    android.R.layout.simple_spinner_item, assetsArray);
+            arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(arrayAdapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
