@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     DecryptThread decryptThread;
     Spinner spinner;
     Context context;
+    Button buttonSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +42,22 @@ public class MainActivity extends AppCompatActivity {
         buttonSubmit = findViewById(R.id.button_shift);
         textCipher = findViewById(R.id.text_view_cypher);
         spinner = findViewById(R.id.spinner);
+        buttonSave = findViewById(R.id.button_save);
         context = this;
 
         try {
             String[] assetsStringArray = getAssets().list("");
+            String[] cacheStringArray = context.getCacheDir().list();
             ArrayList<String> assetsArray = new ArrayList<>();
             if (assetsStringArray != null) {
                 for(String item: assetsStringArray){
+                    if(item.contains(".txt")){
+                        assetsArray.add(item);
+                    }
+                }
+            }
+            if(cacheStringArray != null){
+                for(String item: cacheStringArray){
                     if(item.contains(".txt")){
                         assetsArray.add(item);
                     }
@@ -58,6 +70,21 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fileName = editInput.getText().toString() + spinner.getSelectedItem().toString();
+                try {
+                    File newFile = File.createTempFile(fileName, null, context.getCacheDir());
+                    FileWriter writer = new FileWriter(newFile);
+                    writer.write(textCipher.getText().toString());
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -154,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
             String UPPER_CASE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
             String shiftedCipher = "";
+            StringBuilder builder = new StringBuilder(strings[0].length());
             for (int i = 0; i < strings[0].length(); i++) {
                 if (ALPHABET.indexOf(strings[0].charAt(i)) != -1) {
                     int position = ALPHABET.indexOf(strings[0].charAt(i));
@@ -162,20 +190,24 @@ public class MainActivity extends AppCompatActivity {
                             shiftedPosition = ALPHABET.length() + shiftedPosition;
                         }*/
                     char shiftedChar = ALPHABET.charAt(shiftedPosition);
-                    shiftedCipher += shiftedChar;
+                    //shiftedCipher += shiftedChar;
+                    builder.append(shiftedChar);
                     publishProgress(i);
                 } else if (UPPER_CASE_ALPHABET.indexOf(strings[0].charAt(i)) != -1) {
                     int position = UPPER_CASE_ALPHABET.indexOf(strings[0].charAt(i));
                     int shiftedPosition = (position + shiftTimes) % 26;
                     char shiftedChar = UPPER_CASE_ALPHABET.charAt(shiftedPosition);
-                    shiftedCipher += shiftedChar;
+                    //shiftedCipher += shiftedChar;
+                    builder.append(shiftedChar);
                     publishProgress(i);
                 } else {
-                    shiftedCipher += strings[0].charAt(i);
+                    //shiftedCipher += strings[0].charAt(i);
+                    builder.append(strings[0].charAt(i));
                     publishProgress(i);
                 }
 
             }
+            shiftedCipher = builder.toString();
             return shiftedCipher;
         }
 
