@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.vivekvishwanath.android_asyntasks_fileio.R;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,13 +33,14 @@ public class MainActivity extends AppCompatActivity {
     int shift;
     Context context;
     Spinner spinner;
+    Button saveButton;
+    String shiftedString = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-      /*    cipherTextView = findViewById(R.id.cipher_data_text);
         userInput = findViewById(R.id.shift_input);
         shiftButton = findViewById(R.id.shift_button);
         progressBar = findViewById(R.id.progress_bar);
@@ -49,13 +52,14 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setMax(cipher.length());
                 new DecryptCypherAsync().execute(cipher);
             }
-        }); */
-      context = this;
-      spinner = findViewById(R.id.spinner);
-      cipherTextView = findViewById(R.id.cipher_data_text);
+        });
+        context = this;
+        spinner = findViewById(R.id.spinner);
+        cipherTextView = findViewById(R.id.cipher_data_text);
+        saveButton = findViewById(R.id.save_button);
 
-      String[] assets = null;
-      ArrayList<String> textAssets = new ArrayList<>();
+        String[] assets = null;
+        ArrayList<String> textAssets = new ArrayList<>();
         try {
             assets = getAssets().list("");
             for (int i = 0; i < assets.length; i++) {
@@ -99,7 +103,32 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (shiftedString != null) {
+                    String fileName = spinner.getSelectedItem().toString() + "_shifted_" +
+                            userInput.getText().toString();
+                    FileWriter fileWriter = null;
+                    try {
+                        File file = File.createTempFile(fileName, ".txt", context.getCacheDir());
+                        fileWriter = new FileWriter(file);
+                        fileWriter.write(shiftedString);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            fileWriter.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
     }
+
 
     class DecryptCypherAsync extends AsyncTask<String, Integer, String> {
         @Override
@@ -134,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     c = (char) (strings[0].charAt(i) + shift);
                 }
                 if ((c < 'A' && c > 'A' + shift)
-                        || (c < 'a' && c > 'a' + shift )) {
+                        || (c < 'a' && c > 'a' + shift)) {
                     c += 26;
                 }
                 builder.append(c);
@@ -142,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 shifts++;
             }
             // System.out.println(newString);
+            shiftedString = builder.toString();
             return builder.toString();
         }
     }
