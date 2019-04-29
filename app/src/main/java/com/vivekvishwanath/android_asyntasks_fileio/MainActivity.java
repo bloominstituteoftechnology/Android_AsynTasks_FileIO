@@ -19,6 +19,8 @@ import com.vivekvishwanath.android_asyntasks_fileio.R;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
                     textAssets.add(assets[i]);
                 }
             }
+            String[] cacheFiles = context.getCacheDir().list();
+            for (int i = 0; i < cacheFiles.length; i++) {
+                if (cacheFiles[i].endsWith(".txt")) {
+                    textAssets.add(cacheFiles[i]);
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,20 +89,43 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 BufferedReader bufferedReader = null;
                 StringBuilder stringBuilder = new StringBuilder();
-                try {
-                    String selectedItem = (String) parent.getItemAtPosition(position);
-                    InputStream inputStream = context.getAssets().open(selectedItem);
-                    InputStreamReader isReader = new InputStreamReader(inputStream);
-                    bufferedReader = new BufferedReader(isReader);
-                    String nextLine;
-                    do {
-                        nextLine = bufferedReader.readLine();
-                        stringBuilder.append(nextLine);
-                    } while (nextLine != null);
-                    String result = stringBuilder.toString();
-                    cipherTextView.setText(result);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                InputStream inputStream = null;
+                FileInputStream fileInputStream = null;
+
+                String selectedItem = (String) parent.getItemAtPosition(position);
+
+                if (selectedItem.contains("_shifted_")) {
+                    try {
+                        fileInputStream = new FileInputStream(new File(context.getCacheDir(), selectedItem));
+                        byte read;
+                        do {
+                            read = (byte) fileInputStream.read();
+                            stringBuilder.append((char)read);
+                        } while (read != -1);
+                        String result = stringBuilder.toString();
+                        cipherTextView.setText(result);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+
+                    try {
+                        inputStream = context.getAssets().open(selectedItem);
+                        InputStreamReader isReader = new InputStreamReader(inputStream);
+                        bufferedReader = new BufferedReader(isReader);
+                        String nextLine;
+                        do {
+                            nextLine = bufferedReader.readLine();
+                            stringBuilder.append(nextLine);
+                        } while (nextLine != null);
+                        String result = stringBuilder.toString();
+                        cipherTextView.setText(result);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -109,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (shiftedString != null) {
                     String fileName = spinner.getSelectedItem().toString() + "_shifted_" +
-                            userInput.getText().toString();
+                            shift;
                     FileWriter fileWriter = null;
                     try {
                         File file = File.createTempFile(fileName, ".txt", context.getCacheDir());
