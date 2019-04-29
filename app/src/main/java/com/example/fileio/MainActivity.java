@@ -5,20 +5,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 	ProgressBar progressBar;
 	EditText et;
 	TextView tv;
+	Spinner spinner;
 	int progress;
 	public static int key;
 	String startingText;
 	char[] upperCase = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 	char[] lowerCase = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+	String[] txtFiles;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +36,12 @@ public class MainActivity extends AppCompatActivity {
 		tv = findViewById(R.id.cypher_text);
 		et = findViewById(R.id.shift_by_view);
 		progressBar = findViewById(R.id.progressBar);
+		spinner = findViewById(R.id.spinner_select_file);
+		
 		startingText =  tv.getText().toString();
 		Log.i("test2", String.valueOf(startingText.length()));
 		
+		setSpinner();
 		
 		
 		Button button = findViewById(R.id.button_Shift);
@@ -44,6 +56,38 @@ public class MainActivity extends AppCompatActivity {
 		});
 	}
 	
+	public void setSpinner(){
+		String[] files = null;
+		
+		try {
+			files = getAssets().list("");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		int counter = 0;
+		for(int i = 0; i < files.length; i++){
+			if(files[i].contains(".txt")){
+				counter++;
+			}
+		}
+		
+		txtFiles = new String[counter];
+		
+		int counter2 = 0;
+		for(int j = 0; j < files.length; j++){
+			if(files[j].contains(".txt")){
+				txtFiles[counter2] = files[j];
+				counter2++;
+			}
+		}
+		
+		final List<String> txtList = new ArrayList<>(Arrays.asList(txtFiles));
+		final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item, txtList);
+		spinnerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+		spinner.setAdapter(spinnerArrayAdapter);
+		
+	}
 	
 	public class ThreadClass extends AsyncTask{
 		@Override
