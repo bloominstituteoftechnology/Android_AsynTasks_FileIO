@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +17,10 @@ import android.widget.TextView;
 
 import com.vivekvishwanath.android_asyntasks_fileio.R;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         }); */
       context = this;
       spinner = findViewById(R.id.spinner);
+      cipherTextView = findViewById(R.id.cipher_data_text);
 
       String[] assets = null;
       ArrayList<String> textAssets = new ArrayList<>();
@@ -55,17 +60,45 @@ public class MainActivity extends AppCompatActivity {
             assets = getAssets().list("");
             for (int i = 0; i < assets.length; i++) {
                 if (assets[i].endsWith(".txt")) {
-                    textAssets.add(assets[i]); 
+                    textAssets.add(assets[i]);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item,
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item,
                 textAssets);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BufferedReader bufferedReader = null;
+                StringBuilder stringBuilder = new StringBuilder();
+                try {
+                    String selectedItem = (String) parent.getItemAtPosition(position);
+                    InputStream inputStream = context.getAssets().open(selectedItem);
+                    InputStreamReader isReader = new InputStreamReader(inputStream);
+                    bufferedReader = new BufferedReader(isReader);
+                    String nextLine;
+                    do {
+                        nextLine = bufferedReader.readLine();
+                        stringBuilder.append(nextLine);
+                    } while (nextLine != null);
+                    String result = stringBuilder.toString();
+                    cipherTextView.setText(result);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     class DecryptCypherAsync extends AsyncTask<String, Integer, String> {
