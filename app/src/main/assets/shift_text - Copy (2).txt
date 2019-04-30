@@ -1,0 +1,11 @@
+You'll need to go through a few steps to add items to the spinner programmatically
+
+Use getAssets().list("") to get a String array containing the names of the items in the assets folder
+
+This will also give you sub directories for that folder, you will need to step through the array and keep all elements with ".txt" in the file names
+
+Create an ArrayAdapter<String> object using the constructor new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, itemArray)
+
+the first parameter is your activity's context
+the layout for the spinner item
+the array of items (in this case Strings) to be used in the array
