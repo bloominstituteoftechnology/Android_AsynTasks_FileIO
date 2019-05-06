@@ -2,17 +2,22 @@ package com.shoon.android_asyntasks_fileio;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.view.View;
 
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,6 +38,19 @@ public class MainActivity extends AppCompatActivity {
         tv=findViewById( R.id.text_main );
         str=getResources().getString( R.string.contents_shifted);
         bt=findViewById( R.id.button_for_result );
+        Context context=getApplicationContext();
+        AssetManager assetManager = getResources().getAssets();
+        String[] fileList = null;
+        try {
+            fileList = assetManager.list("");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.printf( fileList[1]);
+        ArrayAdapter<String> aa=new ArrayAdapter<String>( context,android.R.layout.simple_spinner_dropdown_item,fileList );
+        aa.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+        Spinner sp=findViewById( R.id. spinner);
+        sp.setAdapter( aa );
 
         tv.setText(str);
         et=findViewById( R.id.input_number );
