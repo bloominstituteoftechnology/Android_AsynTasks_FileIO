@@ -10,14 +10,18 @@ import android.os.Bundle;
 
 import android.view.View;
 
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         tv=findViewById( R.id.text_main );
         str=getResources().getString( R.string.contents_shifted);
         bt=findViewById( R.id.button_for_result );
-        Context context=getApplicationContext();
+        final Context context=getApplicationContext();
         AssetManager assetManager = getResources().getAssets();
         String[] fileList = null;
         try {
@@ -46,13 +50,54 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.printf( fileList[1]);
+
         ArrayAdapter<String> aa=new ArrayAdapter<String>( context,android.R.layout.simple_spinner_dropdown_item,fileList );
         aa.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
         Spinner sp=findViewById( R.id. spinner);
         sp.setAdapter( aa );
+        sp.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
+              @Override
+              public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                  String strFile=(String)parent.getItemAtPosition( position );
+                  InputStream is=null;
+                  try {
+                      is=context.getAssets().open( strFile );
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                  }
+                  System.out.printf( String.valueOf( position ) );
 
-        tv.setText(str);
+                  InputStreamReader isr=new InputStreamReader( is);
+                  BufferedReader bfr = new BufferedReader( isr );
+                  StringBuilder sb=new StringBuilder(  );
+
+                  String str="";
+                  while(true){
+                      try {
+                          if (!((str = bfr.readLine()) != null)) break;
+                          sb.append( str);
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                      System.out.println(str);
+                  }
+                  try {
+                      bfr.close();
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                  }
+
+                  tv.setText( sb );
+              }
+
+              @Override
+              public void onNothingSelected(AdapterView<?> parent) {
+
+              }
+          });
+
+
+
         et=findViewById( R.id.input_number );
         bt.setOnClickListener( new View.OnClickListener() {
             @Override
